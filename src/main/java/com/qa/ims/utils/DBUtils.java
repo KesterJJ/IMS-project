@@ -32,7 +32,7 @@ public class DBUtils {
 		}
 		this.dbUrl = dbProps.getProperty("db.url", "jdbc:mysql://localhost:3306/ims");
 		this.dbUser = dbProps.getProperty("db.user", "root");
-		this.dbPassword = dbProps.getProperty("db.password", "50centGuni!");
+		this.dbPassword = dbProps.getProperty("db.password", "root");
 	}
 
 	public DBUtils() {
