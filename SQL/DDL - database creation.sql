@@ -1,0 +1,32 @@
+CREATE DATABASE IF NOT EXISTS inventory_management_db;
+
+USE inventory_management_db;
+
+CREATE TABLE IF NOT EXISTS customers (
+id INT PRIMARY KEY AUTO_INCREMENT,
+first_name VARCHAR(30) NOT NULL,
+last_name VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS items (
+id INT PRIMARY KEY AUTO_INCREMENT,
+item_name VARCHAR(50) NOT NULL,
+price DECIMAL(10, 2) NOT NULL,
+quantity INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS baskets (
+id INT PRIMARY KEY AUTO_INCREMENT,
+FOREIGN KEY (customer_id) REFERENCES customers(id),
+FOREIGN KEY (item_id) REFERENCES items(id),
+basket_price DECIMAL(10, 2)
+);
+
+
+CREATE TABLE IF NOT EXISTS orders (
+id INT PRIMARY KEY AUTO_INCREMENT,
+FOREIGN KEY (customer_id) REFERENCES customers(id),
+FOREIGN KEY (baskets_id) REFERENCES baskets(id),
+FOREIGN KEY (item_id) REFERENCES items(id),
+order_total DECIMAL(10, 2) NOT NULL
+);
