@@ -27,11 +27,6 @@ public class OrderDAO implements Dao<Order> {
 		String customerForename = resultSet.getString("c.first_name");
 		String customerSurname = resultSet.getString("c.surname");
 		List<Item> items = readItemsInOrder(id);
-		//List<String> itemStrings = readItemsInOrder(id);
-		/*Long itemId = resultSet.getLong("oi.item_id");
-		String itemName = resultSet.getString("i.item_name");
-		Double itemPrice = resultSet.getDouble("i.price");*/
-	//	return new Order(id, orderId, customerId, customerForename, customerSurname, itemId, itemName, itemPrice);
 		return new Order(id, orderId, customerId, customerForename, customerSurname, items);
 	}
 
@@ -45,9 +40,9 @@ public class OrderDAO implements Dao<Order> {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT oi.id, oi.order_id, o.customer_id, "
-						+ "c.first_name, c.surname, oi.item_id, i.item_name, i.price " + "FROM (((order_items oi "
-						+ "JOIN orders o ON oi.order_id = o.id)" + " JOIN customers c ON o.customer_id = c.id)"
-						+ " JOIN items i ON oi.item_id = i.id)"
+						+ "c.first_name, c.surname " + "FROM ((order_items oi "
+						+ "JOIN orders o ON oi.order_id = o.id)" 
+						+ " JOIN customers c ON o.customer_id = c.id)"
 						+ "GROUP BY oi.order_id;");) {
 			List<Order> orders = new ArrayList<>();
 			while (resultSet.next()) {
@@ -82,7 +77,7 @@ public class OrderDAO implements Dao<Order> {
 				PreparedStatement statement = connection.prepareStatement("SELECT i.id, i.item_name, i.price "
 						+ "FROM order_items oi "
 						+ " JOIN items i ON oi.item_id = i.id"
-						+ " WHERE oi.order_id = ?;");) {
+						+ " WHERE i.id = ?;");) {
 			statement.setLong(1, orderId);
 			List<Item> items = new ArrayList<Item>();
 			List<String> itemStrings = new ArrayList<String>();
@@ -146,6 +141,44 @@ public class OrderDAO implements Dao<Order> {
 			LOGGER.error(e.getMessage());
 		}
 		return null;
+	}
+	
+	public boolean customerExists(Long customerId) {
+		try (Connection connection = DBUtils.getInstance().getConnection();
+				PreparedStatement statement = connection
+						.prepareStatement("SELECT * FROM customers WHERE id = ?");) {
+			statement.setLong(1, customerId);
+			try (ResultSet resultSet = statement.executeQuery();) {
+				if (resultSet.next()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.debug(e);
+			LOGGER.error(e.getMessage());
+		}
+		return false;
+	}
+	
+	public boolean itemExists(Long itemId) {
+		try (Connection connection = DBUtils.getInstance().getConnection();
+				PreparedStatement statement = connection
+						.prepareStatement("SELECT * FROM items WHERE id = ?");) {
+			statement.setLong(1, itemId);
+			try (ResultSet resultSet = statement.executeQuery();) {
+				if (resultSet.next()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.debug(e);
+			LOGGER.error(e.getMessage());
+		}
+		return false;
 	}
 
 	public boolean customerHasCurrentOrder(Long customerId) {

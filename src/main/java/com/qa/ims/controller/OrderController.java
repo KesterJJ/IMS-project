@@ -22,7 +22,6 @@ public class OrderController implements CrudController<Order> {
 		this.utils = utils;
 	}
 
-
 	@Override
 	public List<Order> readAll() {
 		List<Order> orders = orderDAO.readAll();
@@ -37,17 +36,28 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order create() {
-		//CHANGE THIS SO IT TAKES A CUSTOMER NAME AND AN ITEM NAME
+		// CHANGE THIS SO IT TAKES A CUSTOMER NAME AND AN ITEM NAME
 		LOGGER.info("Please enter a customer id");
 		Long customerId = utils.getLong();
-		LOGGER.info("Please enter an item id");
-		Long itemId= utils.getLong();
-		Order order = (Order) orderDAO.create(new Order(customerId, itemId));
-		//ADD AN OPTION HERE TO SAY YES OR NO TO ADD ANOTHER ITEM THEN ASK FOR THE NEW ITEM ID
-		if (order != null) {
-		LOGGER.info("Order created");
+		if (orderDAO.customerExists(customerId)) {
+			LOGGER.info("Please enter an item id");
+			Long itemId = utils.getLong();
+			if (orderDAO.itemExists(itemId)) {
+				Order order = (Order) orderDAO.create(new Order(customerId, itemId));
+				// ADD AN OPTION HERE TO SAY YES OR NO TO ADD ANOTHER ITEM THEN ASK FOR THE NEW
+				// ITEM ID
+				if (order != null) {
+					LOGGER.info("Order created");
+				}
+				return order;
+			} else {
+				LOGGER.info("Item does not exist. Please choose an existing item");
+			}
+		} else {
+			LOGGER.info("Customer does not exist. Please choose an existing customer");
 		}
-		return order;
+		return null;
+
 	}
 
 	/**
@@ -61,7 +71,7 @@ public class OrderController implements CrudController<Order> {
 		LOGGER.info("Would you like to add a new item to the order or remove an item from the order? (add/remove)");
 		String addOrRemove = utils.getString().toLowerCase();
 		if (addOrRemove.equals("add")) {
-		LOGGER.info("Please enter an item id to add to the order");
+			LOGGER.info("Please enter an item id to add to the order");
 		} else if (addOrRemove.equals("remove")) {
 			LOGGER.info("Which item would you like to remove from the order? Please enter item id:");
 		} else {
@@ -69,7 +79,7 @@ public class OrderController implements CrudController<Order> {
 		}
 		Long itemId = utils.getLong();
 		orderDAO.update(id, addOrRemove, itemId);
-		
+
 		Order order = orderDAO.update(new Order(id, itemId));
 		LOGGER.info("Order Updated");
 		return order;
