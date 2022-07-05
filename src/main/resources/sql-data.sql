@@ -6,7 +6,7 @@ INSERT INTO `ims`.`customers` (`first_name`, `surname`) VALUES
  ;
 INSERT INTO `ims`.`items` (`item_name`, `price`) VALUES 
 ('apple', 0.50),
-('tootchbrush', 1.20),
+('toothbrush', 1.20),
 ('milk', 1.50)
 ;
 INSERT INTO `ims`.`orders` (`customer_id`) VALUES 
