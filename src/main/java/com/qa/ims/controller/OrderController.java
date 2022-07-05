@@ -2,7 +2,9 @@ package com.qa.ims.controller;
 
 import java.util.List;
 
-public class OrderController implements CrudController {
+import com.qa.ims.persistence.domain.Order;
+
+public class OrderController implements CrudController<Order> {
 
 	@Override
 	public List readAll() {
