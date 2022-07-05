@@ -42,7 +42,7 @@ public class Item {
 
 	@Override
 	public String toString() {
-		return "id:" + id + " item name:" + itemName + " price: £" + price;
+		return "[item id: " + id + ", item name: " + itemName + ", price: £" + price + "]";
 	}
 
 	@Override

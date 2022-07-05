@@ -26,10 +26,13 @@ public class OrderDAO implements Dao<Order> {
 		Long customerId = resultSet.getLong("o.customer_id");
 		String customerForename = resultSet.getString("c.first_name");
 		String customerSurname = resultSet.getString("c.surname");
-		Long itemId = resultSet.getLong("oi.item_id");
+		List<Item> items = readItemsInOrder(id);
+		//List<String> itemStrings = readItemsInOrder(id);
+		/*Long itemId = resultSet.getLong("oi.item_id");
 		String itemName = resultSet.getString("i.item_name");
-		Double itemPrice = resultSet.getDouble("i.price");
-		return new Order(id, orderId, customerId, customerForename, customerSurname, itemId, itemName, itemPrice);
+		Double itemPrice = resultSet.getDouble("i.price");*/
+	//	return new Order(id, orderId, customerId, customerForename, customerSurname, itemId, itemName, itemPrice);
+		return new Order(id, orderId, customerId, customerForename, customerSurname, items);
 	}
 
 	/**
@@ -44,7 +47,8 @@ public class OrderDAO implements Dao<Order> {
 				ResultSet resultSet = statement.executeQuery("SELECT oi.id, oi.order_id, o.customer_id, "
 						+ "c.first_name, c.surname, oi.item_id, i.item_name, i.price " + "FROM (((order_items oi "
 						+ "JOIN orders o ON oi.order_id = o.id)" + " JOIN customers c ON o.customer_id = c.id)"
-						+ " JOIN items i on oi.item_id = i.id);");) {
+						+ " JOIN items i ON oi.item_id = i.id)"
+						+ "GROUP BY oi.order_id;");) {
 			List<Order> orders = new ArrayList<>();
 			while (resultSet.next()) {
 				orders.add(modelFromResultSet(resultSet));
@@ -63,7 +67,7 @@ public class OrderDAO implements Dao<Order> {
 				ResultSet resultSet = statement.executeQuery("SELECT oi.id, oi.order_id, o.customer_id, "
 						+ "c.first_name, c.surname, oi.item_id, i.item_name, i.price " + "FROM (((order_items oi"
 						+ " JOIN orders o ON oi.order_id = o.id)" + " JOIN customers c ON o.customer_id = c.id)"
-						+ " JOIN items i on oi.item_id = i.id)" + " ORDER BY oi.id DESC LIMIT 1;");) {
+						+ " JOIN items i ON oi.item_id = i.id)" + " ORDER BY oi.id DESC LIMIT 1;");) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
@@ -71,6 +75,29 @@ public class OrderDAO implements Dao<Order> {
 			LOGGER.error(e.getMessage());
 		}
 		return null;
+	}
+
+	public List<Item> readItemsInOrder(Long orderId) {
+		try (Connection connection = DBUtils.getInstance().getConnection();
+				PreparedStatement statement = connection.prepareStatement("SELECT i.id, i.item_name, i.price "
+						+ "FROM order_items oi "
+						+ " JOIN items i ON oi.item_id = i.id"
+						+ " WHERE oi.order_id = ?;");) {
+			statement.setLong(1, orderId);
+			List<Item> items = new ArrayList<Item>();
+			List<String> itemStrings = new ArrayList<String>();
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				ItemDAO itemDAO = new ItemDAO();
+				items.add(itemDAO.modelFromResultSet(resultSet));
+				itemStrings.add(itemDAO.modelFromResultSet(resultSet).toString());
+			}
+			return items;
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+			LOGGER.error(e.getMessage());
+		}
+		return new ArrayList<>();
 	}
 
 	/**
@@ -90,7 +117,7 @@ public class OrderDAO implements Dao<Order> {
 				statement1.executeUpdate();
 				statement2.setDouble(1, getOrderId(order.getCustomerId()));
 				statement2.setDouble(2, order.getItemId());
-				
+
 				statement2.executeUpdate();
 				return readLatest();
 			} catch (Exception e) {
@@ -146,9 +173,7 @@ public class OrderDAO implements Dao<Order> {
 				PreparedStatement statement = connection.prepareStatement("SELECT oi.id, oi.order_id, o.customer_id, "
 						+ "c.first_name, c.surname, oi.item_id, i.item_name, i.price " + "FROM (((order_items oi "
 						+ "JOIN orders o ON oi.order_id = o.id)" + " JOIN customers c ON o.customer_id = c.id)"
-						+ " JOIN items i on oi.item_id = i.id)"
-						+ "WHERE oi.order_id = ?;");)
-				 {
+						+ " JOIN items i on oi.item_id = i.id)" + "WHERE oi.order_id = ?;");) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				resultSet.next();
@@ -168,18 +193,18 @@ public class OrderDAO implements Dao<Order> {
 	 *              that order in the database
 	 * @return
 	 */
-	//@Override
+	// @Override
 	public Order update(Long id, String addOrRemove, Long itemId) {
-			if(addOrRemove.equals("add")) {
-				addItem(id, itemId);
-			} else if(addOrRemove.equals("remove")) {
-				removeItem(id, itemId);
-			} else {
-				LOGGER.info("Please enter a valid response (ADD/REMOVE)");
-			}
-			return read(id);
+		if (addOrRemove.equals("add")) {
+			addItem(id, itemId);
+		} else if (addOrRemove.equals("remove")) {
+			removeItem(id, itemId);
+		} else {
+			LOGGER.info("Please enter a valid response (ADD/REMOVE)");
+		}
+		return read(id);
 	}
-	
+
 	public Order removeItem(Long id, Long itemId) {
 		// TODO Auto-generated method stub
 		try (Connection connection = DBUtils.getInstance().getConnection();
@@ -199,8 +224,7 @@ public class OrderDAO implements Dao<Order> {
 	public Order addItem(Long orderId, Long itemId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
-						.prepareStatement("INSERT INTO order_items (order_id, item_id) VALUES "
-								+ " (?, ?)");) {
+						.prepareStatement("INSERT INTO order_items (order_id, item_id) VALUES " + " (?, ?)");) {
 			statement.setLong(1, orderId);
 			statement.setLong(2, itemId);
 			statement.executeUpdate();

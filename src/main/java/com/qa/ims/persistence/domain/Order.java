@@ -1,5 +1,9 @@
 package com.qa.ims.persistence.domain;
 
+import java.util.List;
+
+import com.qa.ims.persistence.dao.OrderDAO;
+
 public class Order {
 	private Long id;
 	private Long customerId;
@@ -9,6 +13,7 @@ public class Order {
 	private Long itemId;
 	private String itemName;
 	private Double itemPrice;
+	private List<Item> items;
 
 	public Order(Long customerId, Long itemId) {
 		this.setCustomerId(customerId);
@@ -45,6 +50,25 @@ public class Order {
 		this.customerSurname = customerSurname;
 	}
 	
+	public Order(Long id, Long orderId, Long customerId, String customerForename, String customerSurname, 
+			List<Item> items) {
+		this.id = id;
+		this.customerId = customerId;
+		this.orderId = orderId;
+		this.items = items;
+		this.customerForename = customerForename;
+		this.customerSurname = customerSurname;
+	}
+	
+	public Order(Long orderId, Long customerId, String customerForename, String customerSurname,
+			List<Item> items) {
+		this.customerId = customerId;
+		this.orderId = orderId;
+		this.items = items;
+		this.customerForename = customerForename;
+		this.customerSurname = customerSurname;
+	}
+	
 
 	public Long getId() {
 		return id;
@@ -69,13 +93,22 @@ public class Order {
 	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
+	
+	
+
+	public List<Item> getItems() {
+		return items;
+	}
+
+	public void setItems(List<Item> items) {
+		this.items = items;
+	}
 
 	@Override
 	public String toString() {
-		return "order-item id: " + id + "  order id: " + orderId + "  customer id: " 
-	+ customerId + "  customer first name: " + customerForename + "  customer last name: "
-				+ customerSurname + "  item id: " + itemId + "  item name: " + itemName +
-				"  item price: " + itemPrice;
+		return "{order-item id: " + id + ",  order id: " + orderId + ",  customer id: " 
+	+ customerId + ",  customer first name: " + customerForename + ",  customer last name: "
+				+ customerSurname + ",\n items:" + items + "}";
 	}
 
 	@Override
