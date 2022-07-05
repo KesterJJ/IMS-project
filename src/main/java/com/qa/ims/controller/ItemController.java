@@ -31,6 +31,9 @@ public class ItemController implements CrudController<Item> {
 		}
 		return items;
 	}
+	
+	//ADD A READ ONE METHOD
+	//ADD A METHOD IN ITEMS TO ADD AN ITEM TO AN ORDER
 
 	/**
 	 * Creates a item by taking in user input
