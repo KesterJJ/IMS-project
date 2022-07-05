@@ -168,15 +168,43 @@ public class OrderDAO implements Dao<Order> {
 	 *              that order in the database
 	 * @return
 	 */
-	@Override
-	public Order update(Order order) {
+	//@Override
+	public Order update(Long id, String addOrRemove, Long itemId) {
+			if(addOrRemove.equals("add")) {
+				addItem(id, itemId);
+			} else if(addOrRemove.equals("remove")) {
+				removeItem(id, itemId);
+			} else {
+				LOGGER.info("Please enter a valid response (ADD/REMOVE)");
+			}
+			return read(id);
+	}
+	
+	public Order removeItem(Long id, Long itemId) {
+		// TODO Auto-generated method stub
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
-						.prepareStatement("UPDATE orders SET item_id = ? WHERE id = ?");) {
-			statement.setLong(1, order.getItemId());
-			statement.setLong(3, order.getId());
+						.prepareStatement("DELETE FROM order_items WHERE order_id = ? AND item_id = ?;");) {
+			statement.setLong(1, id);
+			statement.setLong(2, itemId);
 			statement.executeUpdate();
-			return read(order.getId());
+			return read(id);
+		} catch (Exception e) {
+			LOGGER.debug(e);
+			LOGGER.error(e.getMessage());
+		}
+		return null;
+	}
+
+	public Order addItem(Long orderId, Long itemId) {
+		try (Connection connection = DBUtils.getInstance().getConnection();
+				PreparedStatement statement = connection
+						.prepareStatement("INSERT INTO order_items (order_id, item_id) VALUES "
+								+ " (?, ?)");) {
+			statement.setLong(1, orderId);
+			statement.setLong(2, itemId);
+			statement.executeUpdate();
+			return read(orderId);
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
@@ -200,6 +228,12 @@ public class OrderDAO implements Dao<Order> {
 			LOGGER.error(e.getMessage());
 		}
 		return 0;
+	}
+
+	@Override
+	public Order update(Order t) {
+		// TODO Auto-generated method stub
+		return t;
 	}
 
 }

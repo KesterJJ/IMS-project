@@ -63,11 +63,13 @@ public class OrderController implements CrudController<Order> {
 		if (addOrRemove.equals("add")) {
 		LOGGER.info("Please enter an item id to add to the order");
 		} else if (addOrRemove.equals("remove")) {
-//			LOGGER.info("Which item would you like to remove from the order? Please enter item id:");
+			LOGGER.info("Which item would you like to remove from the order? Please enter item id:");
+		} else {
+			LOGGER.info("Please enter either 'add' or 'remove");
 		}
-		//ADD AN OPTION TO EITHER ADD A NEW ITEM OR REMOVE AN ITEM HERE
-		
 		Long itemId = utils.getLong();
+		orderDAO.update(id, addOrRemove, itemId);
+		
 		Order order = orderDAO.update(new Order(id, itemId));
 		LOGGER.info("Order Updated");
 		return order;
