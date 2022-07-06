@@ -8,4 +8,4 @@ SELECT oi.id, oi.order_id, o.customer_id, c.first_name, c.surname, oi.item_id, i
 						 JOIN customers c ON o.customer_id = c.id)
 						 JOIN items i on oi.item_id = i.id);
                          
-                      --   SELECT * FROM orders;
+                         SELECT * FROM orders;

@@ -1,7 +1,10 @@
 package com.qa.ims.persistence.domain;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.qa.ims.persistence.dao.ItemDAO;
 import com.qa.ims.persistence.dao.OrderDAO;
 
 public class Order {
@@ -12,10 +15,16 @@ public class Order {
 	private String customerSurname;;
 	private Long itemId;
 	private List<Item> items;
-
+	
+	ItemDAO itemDAO = new ItemDAO();
+	
+	
 	public Order(Long customerId, Long itemId) {
 		this.setCustomerId(customerId);
 		this.setItemId(itemId);
+		items = new ArrayList<Item>();
+		items.add(itemDAO.read(itemId));
+		this.setItems(items);
 	}
 
 	public Order(Long id, Long customerId, Long itemId) {
@@ -81,21 +90,23 @@ public class Order {
 	public void setItems(List<Item> items) {
 		this.items = items;
 	}
-
+	
 	@Override
+	public String toString() {
+		return "Order [id=" + id + ", customerId=" + customerId + ", orderId=" + orderId + ", customerForename="
+				+ customerForename + ", customerSurname=" + customerSurname + ", items=" + items
+				+ "Total cost: £" + calculatePrice(items) + "]";
+	}
+
+/*	@Override
 	public String toString() {
 		return "{order id: " + orderId + ",  customer id: " + customerId + ",  customer first name: " + customerForename
 				+ ",  customer last name: " + customerSurname + ",\n items:" + items + "\n Total cost: £" + calculatePrice(items) + "}";
-	}
+	}*/
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((itemId == null) ? 0 : itemId.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((customerId == null) ? 0 : customerId.hashCode());
-		return result;
+		return Objects.hash(customerForename, customerId, customerSurname, id, itemId, items, orderId);
 	}
 
 	@Override
@@ -107,21 +118,11 @@ public class Order {
 		if (getClass() != obj.getClass())
 			return false;
 		Order other = (Order) obj;
-		if (getItemId() == null) {
-			if (other.getItemId() != null)
-				return false;
-		} else if (!getItemId().equals(other.getItemId()))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (customerId == null) {
-			if (other.customerId != null)
-				return false;
-		} else if (!customerId.equals(other.customerId))
-			return false;
-		return true;
+		return Objects.equals(customerForename, other.customerForename) && Objects.equals(customerId, other.customerId)
+				&& Objects.equals(customerSurname, other.customerSurname) && Objects.equals(id, other.id)
+				&& Objects.equals(itemId, other.itemId) && Objects.equals(items, other.items)
+				&& Objects.equals(orderId, other.orderId);
 	}
+
+
 }
