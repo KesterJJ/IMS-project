@@ -1,7 +1,7 @@
 INSERT INTO `ims`.`customers` (`first_name`, `surname`) VALUES 
  ('jordan', 'harrison'),
   ('Jack', 'Smith'),
-  ('Shirly', 'Rice'),
+  ('Shirley', 'Rice'),
   ('Flob', 'Robertson')
  ;
 INSERT INTO `ims`.`items` (`item_name`, `price`) VALUES 

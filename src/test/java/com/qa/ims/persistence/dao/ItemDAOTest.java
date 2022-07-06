@@ -25,31 +25,31 @@ public class ItemDAOTest {
 
 		@Test
 		public void testCreate() {
-			final Item created = new Item(2L, "Crisps", 1.00);
+			final Item created = new Item(2L, "Crisps", (Double) 1.0);
 			assertEquals(created, DAO.create(created));
 		}
 
 		@Test
 		public void testReadAll() {
 			List<Item> expected = new ArrayList<>();
-			expected.add(new Item(1L, "chocolate", 0.65));
+			expected.add(new Item(1L, "apple", (Double) 0.50));
 			assertEquals(expected, DAO.readAll());
 		}
 
 		@Test
 		public void testReadLatest() {
-			assertEquals(new Item(1L, "cheese", 1.75), DAO.readLatest());
+			assertEquals(new Item(1L, "apple", (Double) 0.50), DAO.readLatest());
 		}
 
 		@Test
 		public void testRead() {
 			final long ID = 1L;
-			assertEquals(new Item(ID, "cereal", 2.99), DAO.read(ID));
+			assertEquals(new Item(ID, "apple", (Double) 0.50), DAO.read(ID));
 		}
 
 		@Test
 		public void testUpdate() {
-			final Item updated = new Item(1L, "rice", 1.29);
+			final Item updated = new Item(1L, "apple", (Double) 0.50);
 			assertEquals(updated, DAO.update(updated));
 
 		}

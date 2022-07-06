@@ -27,6 +27,7 @@ public class CustomerDAOTest {
 		assertEquals(created, DAO.create(created));
 	}
 
+	
 	@Test
 	public void testReadAll() {
 		List<Customer> expected = new ArrayList<>();
