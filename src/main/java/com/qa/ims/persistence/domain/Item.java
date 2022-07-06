@@ -3,7 +3,7 @@ package com.qa.ims.persistence.domain;
 public class Item {
 	private Long id;
 	private String itemName;
-	private Double price;
+	protected Double price;
 
 	public Item(String itemName, Double price) {
 		this.setItemName(itemName);

@@ -11,8 +11,6 @@ public class Order {
 	private String customerForename;
 	private String customerSurname;;
 	private Long itemId;
-	private String itemName;
-	private Double itemPrice;
 	private List<Item> items;
 
 	public Order(Long customerId, Long itemId) {
@@ -25,32 +23,8 @@ public class Order {
 		this.setCustomerId(customerId);
 		this.setItemId(itemId);
 	}
-	
-	
-	public Order(Long id, Long orderId, Long customerId, String customerForename, String customerSurname, 
-			Long itemId, String itemName, Double itemPrice) {
-		this.id = id;
-		this.customerId = customerId;
-		this.orderId = orderId;
-		this.itemId = itemId;
-		this.itemName = itemName;
-		this.itemPrice = itemPrice;
-		this.customerForename = customerForename;
-		this.customerSurname = customerSurname;
-	}
-	
-	public Order(Long orderId, Long customerId, String customerForename, String customerSurname,
-			Long itemId, String itemName, Double itemPrice) {
-		this.customerId = customerId;
-		this.orderId = orderId;
-		this.itemId = itemId;
-		this.itemName = itemName;
-		this.itemPrice = itemPrice;
-		this.customerForename = customerForename;
-		this.customerSurname = customerSurname;
-	}
-	
-	public Order(Long id, Long orderId, Long customerId, String customerForename, String customerSurname, 
+
+	public Order(Long id, Long orderId, Long customerId, String customerForename, String customerSurname,
 			List<Item> items) {
 		this.id = id;
 		this.customerId = customerId;
@@ -59,16 +33,22 @@ public class Order {
 		this.customerForename = customerForename;
 		this.customerSurname = customerSurname;
 	}
-	
-	public Order(Long orderId, Long customerId, String customerForename, String customerSurname,
-			List<Item> items) {
+	 
+	private Double calculatePrice(List<Item> items) {
+		Double price = (double) 0;
+		for (Item item : this.items) {
+			price += item.price;
+		}
+		return price;
+	}
+
+	public Order(Long orderId, Long customerId, String customerForename, String customerSurname, List<Item> items) {
 		this.customerId = customerId;
 		this.orderId = orderId;
 		this.items = items;
 		this.customerForename = customerForename;
 		this.customerSurname = customerSurname;
 	}
-	
 
 	public Long getId() {
 		return id;
@@ -93,8 +73,6 @@ public class Order {
 	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
-	
-	
 
 	public List<Item> getItems() {
 		return items;
@@ -106,9 +84,8 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return "{order id: " + orderId + ",  customer id: " 
-	+ customerId + ",  customer first name: " + customerForename + ",  customer last name: "
-				+ customerSurname + ",\n items:" + items + "}";
+		return "{order id: " + orderId + ",  customer id: " + customerId + ",  customer first name: " + customerForename
+				+ ",  customer last name: " + customerSurname + ",\n items:" + items + "\n Total cost: £" + calculatePrice(items) + "}";
 	}
 
 	@Override
