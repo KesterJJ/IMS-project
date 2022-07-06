@@ -106,7 +106,7 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return "{order-item id: " + id + ",  order id: " + orderId + ",  customer id: " 
+		return "{order id: " + orderId + ",  customer id: " 
 	+ customerId + ",  customer first name: " + customerForename + ",  customer last name: "
 				+ customerSurname + ",\n items:" + items + "}";
 	}

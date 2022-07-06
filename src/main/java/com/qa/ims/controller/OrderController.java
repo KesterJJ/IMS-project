@@ -51,10 +51,10 @@ public class OrderController implements CrudController<Order> {
 				}
 				return order;
 			} else {
-				LOGGER.info("Item does not exist. Please choose an existing item");
+				LOGGER.info("ITEM DOES NOT EXIST. PLEASE CHOOSE AN EXISTING ITEM.");
 			}
 		} else {
-			LOGGER.info("Customer does not exist. Please choose an existing customer");
+			LOGGER.info("CUSTOMER DOES NOT EXIST. PLEASE CHOOSE AN EXISTING CUSTOMER.");
 		}
 		return null;
 
@@ -67,22 +67,33 @@ public class OrderController implements CrudController<Order> {
 	public Order update() {
 		LOGGER.info("Please enter the id of the order you would like to update");
 		Long id = utils.getLong();
-		LOGGER.info(orderDAO.read(id));
-		LOGGER.info("Would you like to add a new item to the order or remove an item from the order? (add/remove)");
-		String addOrRemove = utils.getString().toLowerCase();
-		if (addOrRemove.equals("add")) {
-			LOGGER.info("Please enter an item id to add to the order");
-		} else if (addOrRemove.equals("remove")) {
-			LOGGER.info("Which item would you like to remove from the order? Please enter item id:");
-		} else {
-			LOGGER.info("Please enter either 'add' or 'remove");
-		}
-		Long itemId = utils.getLong();
-		orderDAO.update(id, addOrRemove, itemId);
+		if (orderDAO.orderExists(id)) {
+			LOGGER.info(orderDAO.read(id));
+			LOGGER.info("Would you like to add a new item to the order or remove an item from the order? (add/remove)");
+			String addOrRemove = utils.getString().toLowerCase();
+			if (addOrRemove.equals("add")) {
+				LOGGER.info("Please enter an item id to add to the order");
+			} else if (addOrRemove.equals("remove")) {
+				LOGGER.info("Which item would you like to remove from the order? Please enter item id:");
+			} else {
+				LOGGER.info("PLEASE ENTER EITHER 'ADD' OR 'REMOVE'");
+				return null;
+			}
+			Long itemId = utils.getLong();
+			if (orderDAO.itemExists(itemId)) {
+				LOGGER.info(orderDAO.update(id, addOrRemove, itemId));
 
-		Order order = orderDAO.update(new Order(id, itemId));
-		LOGGER.info("Order Updated");
-		return order;
+				Order order = orderDAO.update(new Order(id, itemId));
+				LOGGER.info("Order Updated");
+				return order;
+			} else {
+				LOGGER.info("ITEM DEOS NOT EXIST. PLEASE ENTER AN EXISTING ITEM");
+				return null;
+			}
+		} else {
+			LOGGER.info("ORDER DOES NOT EXIST PLEASE ENTER AN EXISTING ORDER");
+			return null;
+		}
 	}
 
 	/**
