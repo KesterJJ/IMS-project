@@ -35,7 +35,7 @@ import com.qa.ims.persistence.domain.Order;
 			final Long CUSTOMER_ID = 1L;
 			final Long ITEM_ID = 1L;
 			final List<Item> items = new ArrayList<>();
-			final Item item = new Item(1L, "apple", (Double) 0.50);
+			final Item item = new Item(1L, "apple", 0.50d);
 			items.add(item);
 			final Order created = new Order(null, 1L, CUSTOMER_ID, "jordan", "harrison", items);
 
@@ -61,8 +61,8 @@ import com.qa.ims.persistence.domain.Order;
 		}
 
 		@Test
-		public void testUpdate() {
-			Order updated = new Order(1L, 1L, 1L);
+		public void testUpdateAdd() {
+			Order updated = new Order(1L, 1L);
 
 			Mockito.when(this.utils.getLong()).thenReturn(1L);
 			Mockito.when(this.utils.getString()).thenReturn("add");
@@ -71,9 +71,36 @@ import com.qa.ims.persistence.domain.Order;
 
 			assertEquals(updated, this.controller.update());
 
+			Mockito.verify(this.utils, Mockito.times(2)).getLong();
+			Mockito.verify(this.utils, Mockito.times(1)).getString();
+			Mockito.verify(this.dao, Mockito.times(1)).update(updated);
+		}
+		
+		@Test
+		public void testUpdateNeither() {
+
+			Mockito.when(this.utils.getLong()).thenReturn(1L);
+			Mockito.when(this.utils.getString()).thenReturn("neither");
+			Mockito.when(this.utils.getLong()).thenReturn(1L);
+
+			assertEquals(null, this.controller.update());
+
 			Mockito.verify(this.utils, Mockito.times(1)).getLong();
 			Mockito.verify(this.utils, Mockito.times(1)).getString();
-			Mockito.verify(this.utils, Mockito.times(1)).getLong();
+		}
+		@Test
+		public void testUpdateRemove() {
+			Order updated = new Order(1L, 1L);
+
+			Mockito.when(this.utils.getLong()).thenReturn(1L);
+			Mockito.when(this.utils.getString()).thenReturn("remove");
+			Mockito.when(this.utils.getLong()).thenReturn(1L);
+			Mockito.when(this.dao.update(updated)).thenReturn(updated);
+
+			assertEquals(updated, this.controller.update());
+
+			Mockito.verify(this.utils, Mockito.times(2)).getLong();
+			Mockito.verify(this.utils, Mockito.times(1)).getString();
 			Mockito.verify(this.dao, Mockito.times(1)).update(updated);
 		}
 
