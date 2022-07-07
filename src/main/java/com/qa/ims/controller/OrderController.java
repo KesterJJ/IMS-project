@@ -44,8 +44,12 @@ public class OrderController implements CrudController<Order> {
 		Order order = orderDAO.create(new Order(customerId, itemId));
 		// ADD AN OPTION HERE TO SAY YES OR NO TO ADD ANOTHER ITEM THEN ASK FOR THE NEW
 		// ITEM ID
+		if (order != null) {
 			LOGGER.info("Order created");
 		return order;
+		} else {
+			return null;
+			}
 
 	}
 
@@ -55,7 +59,7 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public Order update() {
 		LOGGER.info("Please enter the id of the order you would like to update");
-		Long id = utils.getLong();
+		Long id = utils.getLong();	
 		LOGGER.info(orderDAO.read(id));
 		LOGGER.info("Would you like to add a new item to the order or remove an item from the order? (add/remove)");
 		String addOrRemove = utils.getString().toLowerCase();
@@ -68,9 +72,7 @@ public class OrderController implements CrudController<Order> {
 			return null;
 		}
 		Long itemId = utils.getLong();
-
 		LOGGER.info(orderDAO.update(id, addOrRemove, itemId));
-
 		Order order = orderDAO.update(new Order(id, itemId));
 		LOGGER.info("Order Updated");
 		return order;

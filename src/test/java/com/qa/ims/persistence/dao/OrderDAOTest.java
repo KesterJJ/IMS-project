@@ -128,6 +128,8 @@ public class OrderDAOTest {
 				items);
 		assertEquals(updated, DAO.update(1L, "remove", 1L));
 		assertEquals(null, DAO.update(1L, "iihbiuh", 1L));
+		assertEquals(null, DAO.update(100L, "add", 1L));
+		assertEquals(null, DAO.update(1L, "add", 100L));
 	}
 	
 	@Test
@@ -179,5 +181,12 @@ public class OrderDAOTest {
 	@Test
 	public void testDelete() {
 		assertEquals(1, DAO.delete(1));
+	}
+	
+	@Test
+	public void testDeleteByCustomer() {
+		
+		assertEquals(1, DAO.deleteByCustomer(1L));
+		assertEquals(0, DAO.deleteByCustomer(2L));
 	}
 }

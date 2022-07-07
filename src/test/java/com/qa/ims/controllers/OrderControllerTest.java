@@ -62,18 +62,23 @@ import com.qa.ims.persistence.domain.Order;
 
 		@Test
 		public void testUpdateAdd() {
-			Order updated = new Order(1L, 1L);
+			//Order updated = new Order(1L, 1L);
+			final List<Item> items = new ArrayList<>();
+			final Item item = new Item(1L, "apple", 0.50d);
+			items.add(item);
+			items.add(item);
+			final Order updated = new Order(null, 1L, 1L, "jordan", "harrison", items);
 
 			Mockito.when(this.utils.getLong()).thenReturn(1L);
 			Mockito.when(this.utils.getString()).thenReturn("add");
 			Mockito.when(this.utils.getLong()).thenReturn(1L);
-			Mockito.when(this.dao.update(updated)).thenReturn(updated);
+			Mockito.when(this.dao.update(new Order(1L, 1L))).thenReturn(updated);
 
 			assertEquals(updated, this.controller.update());
 
 			Mockito.verify(this.utils, Mockito.times(2)).getLong();
 			Mockito.verify(this.utils, Mockito.times(1)).getString();
-			Mockito.verify(this.dao, Mockito.times(1)).update(updated);
+			Mockito.verify(this.dao, Mockito.times(1)).update(new Order(1L, 1L));
 		}
 		
 		@Test
@@ -86,7 +91,6 @@ import com.qa.ims.persistence.domain.Order;
 			assertEquals(null, this.controller.update());
 
 			Mockito.verify(this.utils, Mockito.times(1)).getLong();
-			Mockito.verify(this.utils, Mockito.times(1)).getString();
 		}
 		@Test
 		public void testUpdateRemove() {

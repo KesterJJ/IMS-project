@@ -131,19 +131,21 @@ public class CustomerDAO implements Dao<Customer> {
 	@Override
 	public int delete(long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?;"
-						+ " DELETE FROM orders WHERE customer_id = ?;"
-						+ " DELETE FROM order_items WHERE order_id = ?");) {
+				PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE customer_id = ?;");
+						PreparedStatement statement2 = connection.prepareStatement("DELETE FROM customers WHERE id = ?;");) {
 			OrderDAO orderDAO = new OrderDAO();
+			orderDAO.deleteByCustomer((Long) id);
 			statement.setLong(1, id);
-			statement.setLong(2, id);
-			statement.setLong(3, orderDAO.getOrderId(id));
-			return statement.executeUpdate();
+			statement.executeUpdate();
+			statement2.setLong(1, id);
+			return statement2.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
 		}
 		return 0;
 	}
+	
+	
 
 }

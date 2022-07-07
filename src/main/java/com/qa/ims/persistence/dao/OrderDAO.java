@@ -21,7 +21,7 @@ public class OrderDAO implements Dao<Order> {
 
 	@Override
 	public Order modelFromResultSet(ResultSet resultSet) throws SQLException {
-		Long id = resultSet.getLong("order_items.id");
+		// Long id = resultSet.getLong("order_items.id");
 		Long orderId = resultSet.getLong("order_items.order_id");
 		Long customerId = resultSet.getLong("orders.customer_id");
 		String customerForename = resultSet.getString("customers.first_name");
@@ -129,29 +129,34 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public Order create(Order order) {
 		if (customerExists(order.getCustomerId())) {
-			if (itemExists(order.getItems().get(0).getId())) {
-				if (!customerHasCurrentOrder(order.getCustomerId())) {
-					try (Connection connection = DBUtils.getInstance().getConnection();
-							PreparedStatement statement1 = connection
-									.prepareStatement("INSERT INTO orders(customer_id) VALUES (?)");
-							PreparedStatement statement2 = connection
-									.prepareStatement("INSERT INTO order_items(order_id, item_id) VALUES (?, ?)");) {
-						statement1.setLong(1, order.getCustomerId());
-						statement1.executeUpdate();
-						statement2.setLong(1, getOrderId(order.getCustomerId()));
-						statement2.setLong(2, order.getItems().get(0).getId());
-						statement2.executeUpdate();
-						Order newOrder = readLatest();
-						System.out.println(newOrder);
-						return newOrder;
-					} catch (Exception e) {
-						LOGGER.debug(e);
-						LOGGER.error(e.getMessage());
+			if (order.getItems().get(0) != null) {
+				if (itemExists(order.getItems().get(0).getId())) {
+					if (!customerHasCurrentOrder(order.getCustomerId())) {
+						try (Connection connection = DBUtils.getInstance().getConnection();
+								PreparedStatement statement1 = connection
+										.prepareStatement("INSERT INTO orders(customer_id) VALUES (?)");
+								PreparedStatement statement2 = connection.prepareStatement(
+										"INSERT INTO order_items(order_id, item_id) VALUES (?, ?)");) {
+							statement1.setLong(1, order.getCustomerId());
+							statement1.executeUpdate();
+							statement2.setLong(1, getOrderId(order.getCustomerId()));
+							statement2.setLong(2, order.getItems().get(0).getId());
+							statement2.executeUpdate();
+							Order newOrder = readLatest();
+							System.out.println(newOrder);
+							return newOrder;
+						} catch (Exception e) {
+							LOGGER.debug(e);
+							LOGGER.error(e.getMessage());
+						}
+						return null;
+					} else {
+						LOGGER.info("CUSTOMER CANNOT HAVE TWO ORDERS AT THE SAME TIME."
+								+ " CLOSE PREVIOUS ORDERS TO CREATE A NEW ONE OR UPDATE THE PREVIOUS ORDER WITH NEW ITEMS");
+						return null;
 					}
-					return null;
 				} else {
-					LOGGER.info("CUSTOMER CANNOT HAVE TWO ORDERS AT THE SAME TIME."
-							+ " CLOSE PREVIOUS ORDERS TO CREATE A NEW ONE OR UPDATE THE PREVIOUS ORDER WITH NEW ITEMS");
+					LOGGER.info("ITEM DOES NOT EXIST. PLEASE CHOOSE AN EXISTING ITEM.");
 					return null;
 				}
 			} else {
@@ -161,6 +166,7 @@ public class OrderDAO implements Dao<Order> {
 		} else {
 			LOGGER.info("CUSTOMER DOES NOT EXIST. PLEASE CHOOSE AN EXISTING CUSTOMER.");
 			return null;
+
 		}
 	}
 
@@ -262,6 +268,14 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	// @Override
 	public Order update(Long id, String addOrRemove, Long itemId) {
+		if (!orderExists(id)) {
+			LOGGER.info("ORDER DOES NOT EXIST. YOU CAN ONLY UPDATE AN EXISTING ORDER");
+			return null;
+		}
+		if (!itemExists(itemId)) {
+			LOGGER.info("ITEM DOES NOT EXIST. YOU CAN ONLY UPDATE AN ORDER WITH AN EXISTING ITEM.");
+			return null;
+		}
 		if (addOrRemove.equals("add")) {
 			addItem(id, itemId);
 		} else if (addOrRemove.equals("remove")) {
@@ -383,6 +397,23 @@ public class OrderDAO implements Dao<Order> {
 			LOGGER.error(e.getMessage());
 		}
 		return 0;
+	}
+
+	public int deleteByCustomer(Long customerId) {
+		if (customerHasCurrentOrder(customerId)) {
+			try (Connection connection = DBUtils.getInstance().getConnection();
+					PreparedStatement statement1 = connection
+							.prepareStatement("DELETE FROM order_items WHERE order_id = ?");) {
+				statement1.setLong(1, getOrderId(customerId));
+				return statement1.executeUpdate();
+			} catch (Exception e) {
+				LOGGER.debug(e);
+				LOGGER.error(e.getMessage());
+			}
+			return 0;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
