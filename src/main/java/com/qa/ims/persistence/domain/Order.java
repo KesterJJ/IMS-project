@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import com.qa.ims.persistence.dao.ItemDAO;
-import com.qa.ims.persistence.dao.OrderDAO;
 
 public class Order {
 	private Long id;

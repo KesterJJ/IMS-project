@@ -141,7 +141,9 @@ public class OrderDAO implements Dao<Order> {
 						statement2.setLong(1, getOrderId(order.getCustomerId()));
 						statement2.setLong(2, order.getItems().get(0).getId());
 						statement2.executeUpdate();
-						return readLatest();
+						Order newOrder = readLatest();
+						System.out.println(newOrder);
+						return newOrder;
 					} catch (Exception e) {
 						LOGGER.debug(e);
 						LOGGER.error(e.getMessage());

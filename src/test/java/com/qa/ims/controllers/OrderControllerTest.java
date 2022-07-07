@@ -40,12 +40,12 @@ import com.qa.ims.persistence.domain.Order;
 			final Order created = new Order(null, 1L, CUSTOMER_ID, "jordan", "harrison", items);
 
 			Mockito.when(utils.getLong()).thenReturn(CUSTOMER_ID, ITEM_ID);
-			Mockito.when(dao.create(created)).thenReturn(created);
+			Mockito.when(dao.create(new Order(CUSTOMER_ID, ITEM_ID))).thenReturn(created);
 
 			assertEquals(created, controller.create());
 
 			Mockito.verify(utils, Mockito.times(2)).getLong();
-			Mockito.verify(dao, Mockito.times(1)).create(created);
+			Mockito.verify(dao, Mockito.times(1)).create(new Order(CUSTOMER_ID, ITEM_ID));
 		}
 
 		@Test

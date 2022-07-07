@@ -134,8 +134,6 @@ public class ItemDAO implements Dao<Item> {
 						+ " DELETE FROM order_items WHERE item_id = ?");) {
 			statement.setLong(1, id);
 			statement.setLong(2, id);
-			int output = statement.executeUpdate();
-			System.out.println(output);
 			return statement.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.debug(e);

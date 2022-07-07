@@ -41,12 +41,10 @@ public class OrderController implements CrudController<Order> {
 		Long customerId = utils.getLong();
 		LOGGER.info("Please enter an item id");
 		Long itemId = utils.getLong();
-		Order order = (Order) orderDAO.create(new Order(customerId, itemId));
+		Order order = orderDAO.create(new Order(customerId, itemId));
 		// ADD AN OPTION HERE TO SAY YES OR NO TO ADD ANOTHER ITEM THEN ASK FOR THE NEW
 		// ITEM ID
-		if (order != null) {
 			LOGGER.info("Order created");
-		}
 		return order;
 
 	}
