@@ -29,11 +29,22 @@ public class OrderDAOTest {
 		final Item item = new Item(1L, "apple", 0.50);
 		items.add(item);
 		Order.reconnect();
-		final Order created = new Order(null, 2L, 2L, "Jack", "Jones",
+		final Order created = new Order(2L, 2L, "Jack", "Jones",
 				items);
-
 	created.setItems(items);
 		assertEquals(created, DAO.create(created));
+		final Order created2 = new Order(2L, 2L, "Jack", "Jones",
+				items);
+		assertEquals(null, DAO.create(created2));
+		final Order created3 = new Order(100L, 100L, "Jack", "Jones",
+				items);
+		assertEquals(null, DAO.create(created3));
+		final List<Item> items2 = new ArrayList<>();
+		final Item item2 = new Item(100L, "star", 200.50);
+		items2.add(item2);
+		final Order created4 = new Order(1L, 2L, "Jack", "Jones",
+				items2);
+		assertEquals(null, DAO.create(created4));
 	}
 
 	@Test
@@ -83,6 +94,13 @@ public class OrderDAOTest {
 		assertEquals(expected, DAO.orderExists(1L));
 		assertEquals(false, DAO.orderExists(100L));
 	}
+	
+	@Test
+	public void testCustomerHasCurrentOrder() {
+		boolean expected = true;
+		assertEquals(expected, DAO.customerHasCurrentOrder(1L));
+		assertEquals(false, DAO.customerHasCurrentOrder(2L));
+	}
 
 	@Test
 	public void testRead() {
@@ -109,15 +127,16 @@ public class OrderDAOTest {
 		final Order updated = new Order(null, 1L, 1L, "jordan", "harrison",
 				items);
 		assertEquals(updated, DAO.update(1L, "remove", 1L));
-
+		assertEquals(null, DAO.update(1L, "iihbiuh", 1L));
 	}
 	
 	@Test
 	public void testRemoveItem() {
-		final List<Item> items = new ArrayList<>();
-		Order expected = new Order(null, 1L, 1L, "jordan", "harrison",
-				items);
-//		assertEquals(expected, DAO.removeItem(1L, 1L));
+		Order expected = null;
+		assertEquals(expected, DAO.removeItem(1L, 3L));
+		assertEquals(expected, DAO.removeItem(1L, 2L));
+		assertEquals(expected, DAO.removeItem(1L, 1L));
+		assertEquals(expected, DAO.removeItem(2L, 1L));
 	}
 	
 	@Test
@@ -149,7 +168,12 @@ public class OrderDAOTest {
 		assertEquals(expected, DAO.orderHasItems(1L));
 		assertEquals(false, DAO.orderHasItems(2L));
 	}
-
+	
+	@Test
+	public void testOrderContainsItem() {
+		boolean expected = false;
+		assertEquals(expected, DAO.orderContainsItem(1L, 10L));
+	}
 	
 
 	@Test

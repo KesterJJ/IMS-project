@@ -129,7 +129,7 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public Order create(Order order) {
 		if (customerExists(order.getCustomerId())) {
-			if (itemExists(order.getItemId())) {
+			if (itemExists(order.getItems().get(0).getId())) {
 				if (!customerHasCurrentOrder(order.getCustomerId())) {
 					try (Connection connection = DBUtils.getInstance().getConnection();
 							PreparedStatement statement1 = connection
@@ -232,7 +232,7 @@ public class OrderDAO implements Dao<Order> {
 		return false;
 	}
 
-	private boolean customerHasCurrentOrder(Long customerId) {
+	public boolean customerHasCurrentOrder(Long customerId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
 						.prepareStatement("SELECT * FROM orders WHERE customer_id = ?");) {
@@ -266,6 +266,7 @@ public class OrderDAO implements Dao<Order> {
 			removeItem(id, itemId);
 		} else {
 			LOGGER.info("PLEASE ENTER A VALID RESPONSE (ADD/REMOVE)");
+			return null;
 		}
 		return read(id);
 	}
@@ -340,7 +341,7 @@ public class OrderDAO implements Dao<Order> {
 		return false;
 	}
 
-	private boolean orderContainsItem(Long orderId, Long itemId) {
+	public boolean orderContainsItem(Long orderId, Long itemId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
 						.prepareStatement("SELECT * FROM order_items WHERE order_id = ? AND item_id = ?");) {
