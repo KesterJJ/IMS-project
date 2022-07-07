@@ -17,6 +17,7 @@ import com.qa.ims.utils.DBUtils;
 public class CustomerDAO implements Dao<Customer> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
+	
 
 	@Override
 	public Customer modelFromResultSet(ResultSet resultSet) throws SQLException {
@@ -130,8 +131,13 @@ public class CustomerDAO implements Dao<Customer> {
 	@Override
 	public int delete(long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?");) {
+				PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?;"
+						+ " DELETE FROM orders WHERE customer_id = ?;"
+						+ " DELETE FROM order_items WHERE order_id = ?");) {
+			OrderDAO orderDAO = new OrderDAO();
 			statement.setLong(1, id);
+			statement.setLong(2, id);
+			statement.setLong(3, orderDAO.getOrderId(id));
 			return statement.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.debug(e);

@@ -258,7 +258,7 @@ public class OrderDAO implements Dao<Order> {
 		return read(id);
 	}
 
-	private Order removeItem(Long id, Long itemId) {
+	public Order removeItem(Long id, Long itemId) {
 		if (orderContainsItem(id, itemId)) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
@@ -266,12 +266,12 @@ public class OrderDAO implements Dao<Order> {
 			statement.setLong(1, id);
 			statement.setLong(2, itemId);
 			statement.executeUpdate();
-			if (orderHasItems(id)) {
+		if (orderHasItems(id)) {
 			return read(id);
 			} else {
 				delete(id);
 				return null;
-			}
+			} 
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());

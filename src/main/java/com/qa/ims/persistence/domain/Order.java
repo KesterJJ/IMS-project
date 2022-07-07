@@ -16,9 +16,11 @@ public class Order {
 	private Long itemId;
 	private List<Item> items;
 	
-	ItemDAO itemDAO = new ItemDAO();
+	static ItemDAO itemDAO = new ItemDAO();
 	
-	
+	public static void reconnect() {
+		itemDAO = new ItemDAO();
+	}
 	public Order(Long customerId, Long itemId) {
 		this.setCustomerId(customerId);
 		this.setItemId(itemId);
@@ -98,12 +100,6 @@ public class Order {
 				+ "Total cost: £" + calculatePrice(items) + "]";
 	}
 
-/*	@Override
-	public String toString() {
-		return "{order id: " + orderId + ",  customer id: " + customerId + ",  customer first name: " + customerForename
-				+ ",  customer last name: " + customerSurname + ",\n items:" + items + "\n Total cost: £" + calculatePrice(items) + "}";
-	}*/
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(customerForename, customerId, customerSurname, id, itemId, items, orderId);
@@ -124,5 +120,12 @@ public class Order {
 				&& Objects.equals(orderId, other.orderId);
 	}
 
+/*	@Override
+	public String toString() {
+		return "{order id: " + orderId + ",  customer id: " + customerId + ",  customer first name: " + customerForename
+				+ ",  customer last name: " + customerSurname + ",\n items:" + items + "\n Total cost: £" + calculatePrice(items) + "}";
+	}*/
+
+	
 
 }

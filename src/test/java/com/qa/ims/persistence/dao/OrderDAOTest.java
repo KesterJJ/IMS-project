@@ -24,12 +24,15 @@ public class OrderDAOTest {
 
 	@Test
 	public void testCreate() {
+		setup();
 		final List<Item> items = new ArrayList<>();
 		final Item item = new Item(1L, "apple", 0.50);
 		items.add(item);
+		Order.reconnect();
 		final Order created = new Order(null, 2L, 2L, "Jack", "Jones",
 				items);
-		created.setItems(items);
+
+	created.setItems(items);
 		assertEquals(created, DAO.create(created));
 	}
 
@@ -95,12 +98,14 @@ public class OrderDAOTest {
 	public void testUpdate() {
 		final List<Item> items2 = new ArrayList<>();
 		final Item item = new Item(1L, "apple", 0.50);
+		final Item item2 = new Item(2L, "milk", 1.50);
 		items2.add(item);
-		items2.add(item);
+		items2.add(item2);
 		Order expected = new Order(null, 1L, 1L, "jordan", "harrison",
 				items2);
-		assertEquals(expected, DAO.update(1L, "remove", 1L));
+		assertEquals(expected, DAO.update(1L, "add", 2L));
 		final List<Item> items = new ArrayList<>();
+		items.add(item2);
 		final Order updated = new Order(null, 1L, 1L, "jordan", "harrison",
 				items);
 		assertEquals(updated, DAO.update(1L, "remove", 1L));
@@ -112,7 +117,7 @@ public class OrderDAOTest {
 		final List<Item> items = new ArrayList<>();
 		Order expected = new Order(null, 1L, 1L, "jordan", "harrison",
 				items);
-		assertEquals(expected, DAO.addItem(1L, 1L));
+//		assertEquals(expected, DAO.removeItem(1L, 1L));
 	}
 	
 	@Test
