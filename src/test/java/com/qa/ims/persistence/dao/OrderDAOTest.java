@@ -15,7 +15,7 @@ import com.qa.ims.utils.DBUtils;
 public class OrderDAOTest {
 
 	private final OrderDAO DAO = new OrderDAO();
-
+ 
 	@Before
 	public void setup() {
 		DBUtils.connect();

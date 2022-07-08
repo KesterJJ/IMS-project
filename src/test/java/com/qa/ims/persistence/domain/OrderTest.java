@@ -1,6 +1,7 @@
 package com.qa.ims.persistence.domain;
 
 import static org.junit.Assert.assertTrue;
+import com.qa.ims.persistence.domain.Order;
 
 import org.junit.Test;
 
@@ -20,7 +21,6 @@ public class OrderTest {
 	@Test
 	public void testConstructor() {
 		order = new Order(1L, 1L);
-		
 		assertTrue(order instanceof Order);
 	}
 	

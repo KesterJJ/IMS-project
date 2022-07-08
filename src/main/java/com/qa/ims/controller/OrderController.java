@@ -36,14 +36,11 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order create() {
-		// CHANGE THIS SO IT TAKES A CUSTOMER NAME AND AN ITEM NAME
 		LOGGER.info("Please enter a customer id");
 		Long customerId = utils.getLong();
 		LOGGER.info("Please enter an item id");
 		Long itemId = utils.getLong();
 		Order order = orderDAO.create(new Order(customerId, itemId));
-		// ADD AN OPTION HERE TO SAY YES OR NO TO ADD ANOTHER ITEM THEN ASK FOR THE NEW
-		// ITEM ID
 		if (order != null) {
 			LOGGER.info("Order created");
 		return order;

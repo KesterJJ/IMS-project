@@ -40,8 +40,10 @@ public class OrderDAO implements Dao<Order> {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
 				ResultSet resultSet = statement
-						.executeQuery("SELECT order_items.id, order_items.order_id, orders.customer_id, "
-								+ "customers.first_name, customers.surname " + "FROM ((order_items "
+						.executeQuery("SELECT order_items.id, order_items.order_id,"
+								+ " orders.customer_id, "
+								+ "customers.first_name, customers.surname "
+								+ "FROM ((order_items "
 								+ "JOIN orders ON order_items.order_id = orders.id)"
 								+ " JOIN customers ON orders.customer_id = customers.id)"
 								+ "GROUP BY order_items.order_id;");) {
