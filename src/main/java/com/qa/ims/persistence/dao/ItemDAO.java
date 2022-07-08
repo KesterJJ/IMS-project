@@ -101,8 +101,8 @@ public class ItemDAO implements Dao<Item> {
 	/**
 	 * Updates an item in the database
 	 * 
-	 * @param item - takes in an item object, the id field will be used to
-	 *                 update that item in the database
+	 * @param item - takes in an item object, the id field will be used to update
+	 *             that item in the database
 	 * @return
 	 */
 	@Override
@@ -130,9 +130,12 @@ public class ItemDAO implements Dao<Item> {
 	@Override
 	public int delete(long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM items WHERE id = ?");) {
-			statement.setLong(1, id);
-			return statement.executeUpdate();
+				PreparedStatement statement1 = connection.prepareStatement("DELETE FROM order_items WHERE item_id = ?");
+				PreparedStatement statement2 = connection.prepareStatement("DELETE  FROM items WHERE id = ?;");) {
+			statement1.setLong(1, id);
+			statement1.executeUpdate();
+			statement2.setLong(1, id);
+			return statement2.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());

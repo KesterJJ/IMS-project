@@ -1,4 +1,4 @@
-Coverage: 34%
+Coverage: 77.9%
 # Inventory Management System
 
 This is a simple CRUD Application used to manage the inventory of a small business. It allows a user to connect to a database through the command line and create, read, update, and delete data. It has 3 types of stored data that can be managed. These are customers, items, and orders. An order includes the customer and the items and the application will automatically calculate the price of the order. Customers, items, and orders can be added, viewed, updated, or deleted one by one or as a group. Customers and items must already exist in the database before they can be added to an order.
@@ -46,32 +46,15 @@ Maven: Download: https://maven.apache.org/download.cgi
 
 
 
-
-```
-Give examples
-```
-
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+Once you have installed the dependencies, you can install the application simply by downloading the file located in "target" folder in this repository, called "ims-0.0.1-jar-with-dependencies.jar". Store this anywhere you like in your file system.
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
 
 ## How to use the application
 
-To open the app, simply double click on the application shortcut. Alternatively, you can use the following command in your command-line:
-
-****************************************COMMAND GOES HERE********************************
+To open the app, open your command line and navigate to the folder containing the file you downloaded for the installation. Then enter the command: java -jar .\ims-0.0.1-jar-with-dependencies.jar
+Hit 'Enter'. The application will start in your command line.
 
 When the application is launched, your command-line will ask you which entity to use. Type "customer", "item", or "order" and press 'Enter' to select the entity. Alternatively, you can type "stop" to close the application. If you type anything other than these options, you will be asked to try again, using the same options.
 
@@ -84,38 +67,51 @@ Selecting "create" will ask for details of the entity you wish to create. Type a
 
 Selecting "update" will ask for the ID of the entity you wish to update. It is thus a good idea to select "read" first so that you can see the id of the entity you wish to update. Type in the id and hit enter. It will then ask for the updated parameters for the entity with the selected ID. Once you type responses to the promt and hit 'Enter', the entity will be updated in the database.
 
-Selecting "delete" will ask for the ID of the entity you wish to delete. It is thus a good idea to select "read" first so that you can see the id of the entity you wish to update. Type in the id and hit enter. It wil then ask if you are sure you want to delete the entity. Type "y" or "yes" for "yes", or "n", or "no" for "no" and hit 'Enter'.  If you selected "yes", then the entity will be deleted from the database. If you selected "no", then the entity will remain unchanged and you will be taken back to the previous prompt.
+Selecting "delete" will ask for the ID of the entity you wish to delete. It is thus a good idea to select "read" first so that you can see the id of the entity you wish to delete. Type in the id and hit enter.  The entity will be deleted from the database.
 
 Selecting "Return" at any point will return you to the previous prompt.
 
-End with an example of getting some data out of the system or using it for a little demo
+For example, if we give these responses to the prompts, in order:
+
+Order [id=null, customerId=3, orderId=1, customerForename=Shirley, customerSurname=Rice, items=[[item id: 2, item name: toothbrush, price: £1.2]]Total cost: £1.2]
+Order [id=null, customerId=1, orderId=2, customerForename=jordan, customerSurname=harrison, items=[[item id: 1, item name: apple, price: £0.5]]Total cost: £0.5]
+Order [id=null, customerId=2, orderId=3, customerForename=Jack, customerSurname=Smith, items=[[item id: 2, item name: toothbrush, price: £1.2]]Total cost: £1.2]
+
+ORDER
+READ
+
+We will see this result, based on the example data already in the database:
+
 
 ## Running the tests
 
-Explain how to run the automated tests for this system. Break down into which tests and what they do
+In order to run the tests, you must download the entire repository and then open it in an IDE, such as Eclipse.
+
+You can download Eclipse here: https://www.eclipse.org/downloads/
+
+Once you open the projet in your IDE, you must select the project and check the coverage. In Eclipse, you can do this by right clicking on the project folder in the project explorer. The go down to "Coverage As" and select "Junit test". This will run all tests for the project.
 
 ### Unit Tests 
 
-Explain what these tests test, why and how to run them
+For the unit tests, I have used Junit in order to check that the individual methods are working properly and that they reaturn the expected results. Here is an example of how the tests in this project are created:
 
-```
-Give an example
-```
+![alt text](documentation/unit-test-example.png)
+
+The test code is within the method on the left, called "testReadAll()". It creates an ArrayList, which is what we expect to find when the readAll method is called. It then creates a list of items that would be the items associated with the order and populates it with the same item that is in the test database (Lines59-61). It then populates the first ArrayList with a new order that it creates, which is itself populated with the item list. The result is stored what we expect to see when the "ReadAll()" method on the right is called.
+We use assertEquals() to verify that the order that we just created is the same as the order that is created when the "ReadAll()" method is called. If they both match (which they do), the test is passed.
+
 
 ### Integration Tests 
-Explain what these tests test, why and how to run them
+The integration tests are created using Mockito and they are there to make sure that the controllers produce the expected results, regardless of whether or not the other parts of the application are working.
 
-```
-Give an example
-```
+Here is an example of an integration test in this project:
 
-### And coding style tests
 
-Explain what these tests test and why
+![alt text](documentation/unit-test-example.png)
 
-```
-Give an example
-```
+In this example, the integration test is on the left and the method it is testing is on the right. Lines 35 and 36 are variables needed to create an order. Lines 37-39 are creating a list of items and populating it with one item, which is the same one as in the test database. This is because an order needs to have a list of items with at least one item in it to be initialised. Line 40 creates an order with the created variables, including the item list. This is what we expect to be returned when we create a new order using the method we are testing and given the responses in the next lines of code in the test.
+
+Lines 42 and 43 are refering to the "create()" method on the right. They are making sure that instead of invoking other methods, it will just receive the expected responses when the methods in the brackets are called. This is so we know we are just checking the functionality of this one method and the test will not fail if there is an error in another method. Line 45 actually tests the method, using assertEquals to verify that the expected result is the same as the actual result. Lines 47 and 48 check whether the expected methods are called.
 
 ## Deployment
 

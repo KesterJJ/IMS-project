@@ -21,7 +21,7 @@ public class OrderDAO implements Dao<Order> {
 
 	@Override
 	public Order modelFromResultSet(ResultSet resultSet) throws SQLException {
-		Long id = resultSet.getLong("order_items.id");
+		// Long id = resultSet.getLong("order_items.id");
 		Long orderId = resultSet.getLong("order_items.order_id");
 		Long customerId = resultSet.getLong("orders.customer_id");
 		String customerForename = resultSet.getString("customers.first_name");
@@ -39,11 +39,14 @@ public class OrderDAO implements Dao<Order> {
 	public List<Order> readAll() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT order_items.id, order_items.order_id, orders.customer_id, "
-						+ "customers.first_name, customers.surname " + "FROM ((order_items "
-						+ "JOIN orders ON order_items.order_id = orders.id)" 
-						+ " JOIN customers ON orders.customer_id = customers.id)"
-						+ "GROUP BY order_items.order_id;");) {
+				ResultSet resultSet = statement
+						.executeQuery("SELECT order_items.id, order_items.order_id,"
+								+ " orders.customer_id, "
+								+ "customers.first_name, customers.surname "
+								+ "FROM ((order_items "
+								+ "JOIN orders ON order_items.order_id = orders.id)"
+								+ " JOIN customers ON orders.customer_id = customers.id)"
+								+ "GROUP BY order_items.order_id;");) {
 			List<Order> orders = new ArrayList<>();
 			while (resultSet.next()) {
 				orders.add(modelFromResultSet(resultSet));
@@ -59,10 +62,13 @@ public class OrderDAO implements Dao<Order> {
 	public Order readLatest() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT order_items.id, order_items.order_id, orders.customer_id, "
-						+ "customers.first_name, customers.surname, order_items.item_id, items.item_name, items.price " + "FROM (((order_items"
-						+ " JOIN orders ON order_items.order_id = orders.id)" + " JOIN customers ON orders.customer_id = customers.id)"
-						+ " JOIN items ON order_items.item_id = items.id)" + " ORDER BY order_items.id DESC LIMIT 1;");) {
+				ResultSet resultSet = statement
+						.executeQuery("SELECT order_items.id, order_items.order_id, orders.customer_id, "
+								+ "customers.first_name, customers.surname, order_items.item_id, items.item_name, items.price "
+								+ "FROM (((order_items" + " JOIN orders ON order_items.order_id = orders.id)"
+								+ " JOIN customers ON orders.customer_id = customers.id)"
+								+ " JOIN items ON order_items.item_id = items.id)"
+								+ " ORDER BY order_items.id DESC LIMIT 1;");) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
@@ -71,14 +77,17 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Order read(Long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("SELECT order_items.id, order_items.order_id, orders.customer_id, "
-						+ "customers.first_name, customers.surname, order_items.item_id, items.item_name, items.price " + "FROM (((order_items "
-						+ "JOIN orders ON order_items.order_id = orders.id)" + " JOIN customers  ON orders.customer_id = customers.id)"
-						+ " JOIN items on order_items.item_id = items.id)" + "WHERE order_items.order_id = ?;");) {
+				PreparedStatement statement = connection
+						.prepareStatement("SELECT order_items.id, order_items.order_id, orders.customer_id, "
+								+ "customers.first_name, customers.surname, order_items.item_id, items.item_name, items.price "
+								+ "FROM (((order_items " + "JOIN orders ON order_items.order_id = orders.id)"
+								+ " JOIN customers  ON orders.customer_id = customers.id)"
+								+ " JOIN items on order_items.item_id = items.id)"
+								+ "WHERE order_items.order_id = ?;");) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				resultSet.next();
@@ -93,10 +102,10 @@ public class OrderDAO implements Dao<Order> {
 
 	private List<Item> readItemsInOrder(Long orderId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("SELECT items.id, items.item_name, items.price "
-						+ "FROM order_items"
-						+ " JOIN items ON order_items.item_id = items.id"
-						+ " WHERE order_items.order_id = ?;");) {
+				PreparedStatement statement = connection
+						.prepareStatement("SELECT items.id, items.item_name, items.price " + "FROM order_items"
+								+ " JOIN items ON order_items.item_id = items.id"
+								+ " WHERE order_items.order_id = ?;");) {
 			statement.setLong(1, orderId);
 			List<Item> items = new ArrayList<Item>();
 			List<String> itemStrings = new ArrayList<String>();
@@ -121,27 +130,45 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	@Override
 	public Order create(Order order) {
-		if (!customerHasCurrentOrder(order.getCustomerId())) {
-			try (Connection connection = DBUtils.getInstance().getConnection();
-					PreparedStatement statement1 = connection
-							.prepareStatement("INSERT INTO orders(customer_id) VALUES (?)");
-					PreparedStatement statement2 = connection
-							.prepareStatement("INSERT INTO order_items(order_id, item_id) VALUES (?, ?)");) {
-				statement1.setLong(1, order.getCustomerId());
-				statement1.executeUpdate();
-				statement2.setLong(1, getOrderId(order.getCustomerId()));
-				statement2.setLong(2, order.getItems().get(0).getId());
-				statement2.executeUpdate();
-				return readLatest();
-			} catch (Exception e) {
-				LOGGER.debug(e);
-				LOGGER.error(e.getMessage());
+		if (customerExists(order.getCustomerId())) {
+			if (order.getItems().get(0) != null) {
+				if (itemExists(order.getItems().get(0).getId())) {
+					if (!customerHasCurrentOrder(order.getCustomerId())) {
+						try (Connection connection = DBUtils.getInstance().getConnection();
+								PreparedStatement statement1 = connection
+										.prepareStatement("INSERT INTO orders(customer_id) VALUES (?)");
+								PreparedStatement statement2 = connection.prepareStatement(
+										"INSERT INTO order_items(order_id, item_id) VALUES (?, ?)");) {
+							statement1.setLong(1, order.getCustomerId());
+							statement1.executeUpdate();
+							statement2.setLong(1, getOrderId(order.getCustomerId()));
+							statement2.setLong(2, order.getItems().get(0).getId());
+							statement2.executeUpdate();
+							Order newOrder = readLatest();
+							System.out.println(newOrder);
+							return newOrder;
+						} catch (Exception e) {
+							LOGGER.debug(e);
+							LOGGER.error(e.getMessage());
+						}
+						return null;
+					} else {
+						LOGGER.info("CUSTOMER CANNOT HAVE TWO ORDERS AT THE SAME TIME."
+								+ " CLOSE PREVIOUS ORDERS TO CREATE A NEW ONE OR UPDATE THE PREVIOUS ORDER WITH NEW ITEMS");
+						return null;
+					}
+				} else {
+					LOGGER.info("ITEM DOES NOT EXIST. PLEASE CHOOSE AN EXISTING ITEM.");
+					return null;
+				}
+			} else {
+				LOGGER.info("ITEM DOES NOT EXIST. PLEASE CHOOSE AN EXISTING ITEM.");
+				return null;
 			}
-			return null;
 		} else {
-			LOGGER.info("CUSTOMER CANNOT HAVE TWO ORDERS AT THE SAME TIME."
-					+ " CLOSE PREVIOUS ORDERS TO CREATE A NEW ONE OR UPDATE THE PREVIOUS ORDER WITH NEW ITEMS");
+			LOGGER.info("CUSTOMER DOES NOT EXIST. PLEASE CHOOSE AN EXISTING CUSTOMER.");
 			return null;
+
 		}
 	}
 
@@ -160,11 +187,10 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return null;
 	}
-	
+
 	public boolean customerExists(Long customerId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
-						.prepareStatement("SELECT * FROM customers WHERE id = ?");) {
+				PreparedStatement statement = connection.prepareStatement("SELECT * FROM customers WHERE id = ?");) {
 			statement.setLong(1, customerId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				if (resultSet.next()) {
@@ -179,11 +205,10 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return false;
 	}
-	
+
 	public boolean itemExists(Long itemId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
-						.prepareStatement("SELECT * FROM items WHERE id = ?");) {
+				PreparedStatement statement = connection.prepareStatement("SELECT * FROM items WHERE id = ?");) {
 			statement.setLong(1, itemId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				if (resultSet.next()) {
@@ -198,11 +223,10 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return false;
 	}
-	
+
 	public boolean orderExists(Long orderId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
-						.prepareStatement("SELECT * FROM orders WHERE id = ?");) {
+				PreparedStatement statement = connection.prepareStatement("SELECT * FROM orders WHERE id = ?");) {
 			statement.setLong(1, orderId);
 			try (ResultSet resultSet = statement.executeQuery();) {
 				if (resultSet.next()) {
@@ -218,7 +242,7 @@ public class OrderDAO implements Dao<Order> {
 		return false;
 	}
 
-	private boolean customerHasCurrentOrder(Long customerId) {
+	public boolean customerHasCurrentOrder(Long customerId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
 						.prepareStatement("SELECT * FROM orders WHERE customer_id = ?");) {
@@ -237,8 +261,6 @@ public class OrderDAO implements Dao<Order> {
 		return false;
 	}
 
-	
-
 	/**
 	 * Updates an order in the database
 	 * 
@@ -248,37 +270,57 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	// @Override
 	public Order update(Long id, String addOrRemove, Long itemId) {
+		if (!orderExists(id)) {
+			LOGGER.info("ORDER DOES NOT EXIST. YOU CAN ONLY UPDATE AN EXISTING ORDER");
+			return null;
+		}
+		if (!itemExists(itemId)) {
+			LOGGER.info("ITEM DOES NOT EXIST. YOU CAN ONLY UPDATE AN ORDER WITH AN EXISTING ITEM.");
+			return null;
+		}
 		if (addOrRemove.equals("add")) {
 			addItem(id, itemId);
 		} else if (addOrRemove.equals("remove")) {
 			removeItem(id, itemId);
 		} else {
 			LOGGER.info("PLEASE ENTER A VALID RESPONSE (ADD/REMOVE)");
+			return null;
 		}
 		return read(id);
 	}
 
-	private Order removeItem(Long id, Long itemId) {
-		if (orderContainsItem(id, itemId)) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
-						.prepareStatement("DELETE FROM order_items WHERE order_id = ? AND item_id = ?;");) {
-			statement.setLong(1, id);
-			statement.setLong(2, itemId);
-			statement.executeUpdate();
-			if (orderHasItems(id)) {
-			return read(id);
+	public Order removeItem(Long id, Long itemId) {
+		if (orderExists(id)) {
+			if (itemExists(itemId)) {
+				if (orderContainsItem(id, itemId)) {
+					try (Connection connection = DBUtils.getInstance().getConnection();
+							PreparedStatement statement = connection
+									.prepareStatement("DELETE FROM order_items WHERE order_id = ? AND item_id = ?;");) {
+						statement.setLong(1, id);
+						statement.setLong(2, itemId);
+						statement.executeUpdate();
+						if (orderHasItems(id)) {
+							return read(id);
+						} else {
+							delete(id);
+							return null;
+						}
+					} catch (Exception e) {
+						LOGGER.debug(e);
+						LOGGER.error(e.getMessage());
+					}
+					return null;
+				} else {
+					LOGGER.info(
+							"ORDER DOES NOT CONTAIN SELECTED ITEM. YOU CAN ONLY REMOVE AN ITEM THAT THE ORDER CONTAINS");
+					return null;
+				}
 			} else {
-				delete(id);
+				LOGGER.info("ITEM DEOS NOT EXIST. PLEASE ENTER AN EXISTING ITEM");
 				return null;
 			}
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
-		}
-		return null;
 		} else {
-			LOGGER.info("ORDER DOES NOT CONTAIN SELECTED ITEM. YOU CAN ONLY REMOVE AN ITEM THAT THE ORDER CONTAINS");
+			LOGGER.info("ORDER DOES NOT EXIST PLEASE ENTER AN EXISTING ORDER");
 			return null;
 		}
 	}
@@ -297,8 +339,7 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return null;
 	}
-	
-	
+
 	public boolean orderHasItems(Long orderId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
@@ -317,8 +358,8 @@ public class OrderDAO implements Dao<Order> {
 		}
 		return false;
 	}
-	
-	private boolean orderContainsItem(Long orderId, Long itemId) {
+
+	public boolean orderContainsItem(Long orderId, Long itemId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection
 						.prepareStatement("SELECT * FROM order_items WHERE order_id = ? AND item_id = ?");) {
@@ -346,17 +387,35 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public int delete(long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement1 = connection.prepareStatement("DELETE FROM order_items WHERE order_id = ?");
+				PreparedStatement statement1 = connection
+						.prepareStatement("DELETE FROM order_items WHERE order_id = ?");
 				PreparedStatement statement2 = connection.prepareStatement("DELETE FROM orders WHERE id = ?");) {
 			statement1.setLong(1, id);
 			statement2.setLong(1, id);
-			statement1.executeUpdate();	
+			statement1.executeUpdate();
 			return statement2.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
 		}
 		return 0;
+	}
+
+	public int deleteByCustomer(Long customerId) {
+		if (customerHasCurrentOrder(customerId)) {
+			try (Connection connection = DBUtils.getInstance().getConnection();
+					PreparedStatement statement1 = connection
+							.prepareStatement("DELETE FROM order_items WHERE order_id = ?");) {
+				statement1.setLong(1, getOrderId(customerId));
+				return statement1.executeUpdate();
+			} catch (Exception e) {
+				LOGGER.debug(e);
+				LOGGER.error(e.getMessage());
+			}
+			return 0;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
